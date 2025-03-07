@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+    --font-primary: 'Segoe UI',
+        Tahoma,
+        Geneva,
+        Verdana,
+        sans-serif,
+        serif;
+
+}
+
+/* *:focus {
+    outline: none !important;
+} */
+
+.nachei {
+    background-color: hsla(206, 13.7%, 10%, 0.9);
+    backdrop-filter: blur(6px)
+}
