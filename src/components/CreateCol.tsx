@@ -8,7 +8,7 @@ type props = {
 };
 
 export const CreateCol = ({ createColumn }: props) => {
-  const formRef = useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLFormElement>(null!);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const { currentBoard } = boardsStore();
