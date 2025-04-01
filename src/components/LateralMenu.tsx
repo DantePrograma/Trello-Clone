@@ -7,7 +7,7 @@ import { useOnClickOutside } from "usehooks-ts";
 export const LateralMenu = () => {
   const { boards, currentBoard } = boardsStore();
   const [openCreateBoardModal, setOpenCreateBoardModal] = useState(false);
-  const formRef = useRef(null);
+  const formRef = useRef(null!);
 
   const [expandedMenu, setExpandedMenu] = useState(false);
 

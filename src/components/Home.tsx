@@ -9,7 +9,7 @@ export const Home = () => {
   const [openModal, setOpenModal] = useState(false);
   const [filteredBoards, setFilteredBoards] =
     useState<Record<string, BoardType>>(boards);
-  const formRef = useRef(null);
+  const formRef = useRef(null!);
 
   const setModalClose = () => {
     setOpenModal(false);

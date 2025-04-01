@@ -21,7 +21,7 @@ export const ColContainer = ({
   updateTask,
 }: ColumnProps) => {
   const [openCreateTaskModal, setOpenCreateTaskModal] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLFormElement>(null!);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const enableEditing = () => {
