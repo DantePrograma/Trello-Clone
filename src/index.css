@@ -14,7 +14,20 @@
     outline: none !important;
 } */
 
-.nachei {
-    background-color: hsla(206, 13.7%, 10%, 0.9);
-    backdrop-filter: blur(6px)
+.specialHeaderBackground {
+    backdrop-filter: blur(6px);
+}
+
+.specialHeaderBackground2 {
+    backdrop-filter: blur(4px);
+}
+
+.juju1 {
+    inset: 187px auto auto 260px;
+    background-color: #ffffff29;
+    box-shadow: 1px 0px 0px 0px #ffffff3a;
+}
+
+.transformTranslateClass {
+    transform: translate(-300px);
 }

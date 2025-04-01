@@ -2,7 +2,8 @@ import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { TaskCard } from "./TaskCard";
 import { ColumnType, Task } from "../initialData";
 import { Add } from "../icons/Add";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useEventListener, useOnClickOutside } from "usehooks-ts";
 
 type ColumnProps = {
   Column: ColumnType;
@@ -12,7 +13,7 @@ type ColumnProps = {
   updateTask: (taskId: string) => void;
 };
 
-export const ColumnContainer = ({
+export const ColContainer = ({
   Column,
   index,
   Tasks,
@@ -20,31 +21,39 @@ export const ColumnContainer = ({
   updateTask,
 }: ColumnProps) => {
   const [openCreateTaskModal, setOpenCreateTaskModal] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node) &&
-        closeButtonRef.current &&
-        !closeButtonRef.current.contains(event.target as Node) // 🚫 Ignorar clic en el botón de cierre
-      ) {
-        if (inputValue.trim() !== "") {
-          createTask(Column.id, inputValue);
-        }
-        setInputValue("");
-        setOpenCreateTaskModal(false);
-      }
-    };
+  const enableEditing = () => {
+    setOpenCreateTaskModal(true);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    });
+  };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [inputValue, Column.id, createTask]);
+  const disableEditing = () => {
+    setOpenCreateTaskModal(false);
+  };
+
+  const onKeyDow = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      disableEditing();
+    }
+  };
+
+  useEventListener("keydown", onKeyDow);
+  useOnClickOutside(formRef, disableEditing);
+
+  const handleSubmit = (formData: FormData) => {
+    const taskContent = formData.get("taskContent") as string;
+
+    if (taskContent.trim() !== "") {
+      createTask(Column.id, taskContent);
+      inputRef.current?.focus();
+    } else {
+      setOpenCreateTaskModal(false);
+    }
+  };
 
   return (
     <Draggable draggableId={Column.id} index={index}>
@@ -74,7 +83,7 @@ export const ColumnContainer = ({
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
-                  <div className="min-h-[20px] ">
+                  <div className="h-[35px] ">
                     <p className="text-sm pt-2 pb-2.5 pl-2.5 font-semibold text-[#172b4d]">
                       {Column.title}
                     </p>
@@ -92,55 +101,35 @@ export const ColumnContainer = ({
                   {provided.placeholder}
 
                   {openCreateTaskModal ? (
-                    <div>
+                    <form action={handleSubmit} ref={formRef}>
                       <textarea
                         ref={inputRef}
+                        name="taskContent"
+                        id="taskContent"
                         className="py-2 px-3 w-full bg-white shadow-2xl rounded-lg text-sm  text-[#172b4d] border border-white focus:border-blue-400 focus:ring-1 focus:ring-blue-500 
              focus:outline-none disabled:opacity-50 disabled:pointer-events-none 
              resize-none overflow-hidden"
                         autoFocus
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
                         placeholder="Task content"
                         rows={2} // Establece una altura inicial mínima
                         onInput={(e) => {
                           e.currentTarget.style.height = "auto"; // Restablece la altura para calcular el nuevo tamaño
                           e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`; // Ajusta la altura al contenido
                         }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault(); // Evita el salto de línea
-                            if (inputValue.trim() !== "") {
-                              createTask(Column.id, inputValue);
-                              setInputValue("");
-                              setOpenCreateTaskModal(false);
-                            }
-                          }
-                        }}
                       />
 
                       <div className="flex items-center gap-2 mt-2">
                         <button
-                          onClick={() => {
-                            if (inputValue.trim() !== "") {
-                              createTask(Column.id, inputValue);
-                              setInputValue("");
-                            } else {
-                              setOpenCreateTaskModal(false);
-                              setInputValue("");
-                            }
-                          }}
+                          type="submit"
                           className="bg-[#0c66e4]  text-sm font-medium text-white py-1.5 px-3 rounded-[3px] "
                         >
                           Add task
                         </button>
 
                         <button
-                          ref={closeButtonRef}
                           className="text-gray-600 p-1 rounded hover:bg-zinc-300 transition duration-100"
                           onClick={() => {
                             setOpenCreateTaskModal(false);
-                            setInputValue("");
                           }}
                         >
                           <svg
@@ -152,21 +141,17 @@ export const ColumnContainer = ({
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
                               d="M10.5858 12L5.29289 6.70711C4.90237 6.31658 4.90237 5.68342 5.29289 5.29289C5.68342 4.90237 6.31658 4.90237 6.70711 5.29289L12 10.5858L17.2929 5.29289C17.6834 4.90237 18.3166 4.90237 18.7071 5.29289C19.0976 5.68342 19.0976 6.31658 18.7071 6.70711L13.4142 12L18.7071 17.2929C19.0976 17.6834 19.0976 18.3166 18.7071 18.7071C18.3166 19.0976 17.6834 19.0976 17.2929 18.7071L12 13.4142L6.70711 18.7071C6.31658 19.0976 5.68342 19.0976 5.29289 18.7071C4.90237 18.3166 4.90237 17.6834 5.29289 17.2929L10.5858 12Z"
                               fill="currentColor"
                             ></path>
                           </svg>
                         </button>
                       </div>
-                    </div>
+                    </form>
                   ) : (
                     <div className="w-full">
                       <button
-                        onClick={() =>
-                          setOpenCreateTaskModal(!openCreateTaskModal)
-                        }
+                        onClick={enableEditing}
                         className="flex items-center gap-1.5 w-[100%] p-2 rounded-lg transition duration-100 hover:bg-blue-100 text-gray-500 hover:text-[#172b4d] "
                       >
                         <Add />

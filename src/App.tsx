@@ -1,7 +1,7 @@
-import { Board } from "./components/Board";
+import { Layout } from "./components/Layout";
 
 function App() {
-  return <Board />;
+  return <Layout />;
 }
 
 export default App;
